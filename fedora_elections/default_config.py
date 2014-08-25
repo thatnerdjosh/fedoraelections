@@ -11,3 +11,4 @@ FAS_BASE_URL = 'https://admin.stg.fedoraproject.org/accounts/'
 FAS_USERNAME = ''
 FAS_PASSWORD = ''
 FAS_CHECK_CERT = False
+
