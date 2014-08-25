@@ -159,8 +159,8 @@ def get_simple_voting_form(candidates, fasusers):
 
     return SimpleVoting()
 
-def get_incremental_voting_form(candidates, fasusers):
-    class IncrementalVoting(wtf.Form):
+def get_for_abstain_against_voting_form(candidates, fasusers):
+    class ForAbstainAgainstVoting(wtf.Form):
         action = wtforms.HiddenField()
         titles = []
         candidate_ids = []
@@ -176,8 +176,8 @@ def get_incremental_voting_form(candidates, fasusers):
                 APP.logger.debug(err)
         if candidate.url:
             title = '%s <a href="%s">[Info]</a>' % (title, candidate.url)
-	IncrementalVoting.titles.append((str(candidate.id), title))
-        IncrementalVoting.candidate_ids.append(str(candidate.id))
+	ForAbstainAgainstVoting.titles.append((str(candidate.id), title))
+        ForAbstainAgainstVoting.candidate_ids.append(str(candidate.id))
         fields.append(wtforms.SelectField(
         candidate.name,
         choices=[('0',0),('1',1),('-1',-1)]
@@ -187,8 +187,8 @@ def get_incremental_voting_form(candidates, fasusers):
                raise wtforms.ValidationError(
                    'Not a valid integer value for vote.')
     for i,field in enumerate(fields):
-        setattr(IncrementalVoting,'candidate'+str(i),field)
-    return IncrementalVoting()
+        setattr(ForAbstainAgainstVoting,'candidate'+str(i),field)
+    return ForAbstainAgainstVoting()
 
 def get_select_voting_form(candidates, max_selection):
     class SelectVoting(wtf.Form):

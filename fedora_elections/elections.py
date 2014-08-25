@@ -110,14 +110,14 @@ def vote(election_alias):
     if votes > 0:
         flask.flash('You have already voted in the election!')
         return safe_redirect_back()
-    if election.voting_type == 'for_abstain_against':
-        return vote_incremental(election)
     elif election.voting_type == 'range':
         return vote_range(election)
     elif election.voting_type == 'simple':
         return vote_simple(election)
     elif election.voting_type == 'select':
         return vote_select(election)
+    elif election.voting_type == 'for_abstain_against':
+        return vote_for_abstain_against(election)
     else:  # pragma: no cover
         flask.flash(
             'Unknown election voting type: %s' % election.voting_type)
@@ -155,7 +155,6 @@ def vote_range(election):
                     candidate_id=candidate.short_name,
                     value=candidate.data,
                 )
-                break;
                 SESSION.add(new_vote)
             SESSION.commit()
 
@@ -301,14 +300,16 @@ def vote_simple(election):
         form=form,
         num_candidates=num_candidates,
         nextaction=next_action)
-def vote_incremental(election):
+
+
+def vote_for_abstain_against(election):
     votes = models.Vote.of_user_on_election(
         SESSION, flask.g.fas_user.username, election.id, count=True)
 
     num_candidates = election.candidates.count()
 
     next_action = 'confirm'
-    form=forms.get_incremental_voting_form(
+    form=forms.get_for_abstain_against_voting_form(
                candidates=election.candidates,
                fasusers=election.candidates_are_fasusers)
     if form.validate_on_submit():
@@ -324,7 +325,7 @@ def vote_incremental(election):
                     candidate_id=form.candidate_ids[i-1],
                     value=candidate.data,
                 )
-                i+=1
+                i += 1
                 SESSION.add(new_vote)
             SESSION.commit()
             flask.flash("Your vote has been recorded.  Thank you!")
@@ -335,11 +336,12 @@ def vote_incremental(election):
             next_action = 'vote'
 
     return flask.render_template(
-        'vote_incremental.html',
+        'vote_simple.html',
         election=election,
         form=form,
         num_candidates=num_candidates,
         nextaction=next_action)
+
 
 @APP.route('/results/<election_alias>')
 def election_results(election_alias):
